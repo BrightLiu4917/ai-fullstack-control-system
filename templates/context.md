@@ -1,22 +1,22 @@
-# Context Name
+# 上下文名称
 
-One or two sentences describing this context.
+用一到两句话说明这个上下文的业务边界。
 
-## Language
+## 语言
 
-**Term**:
-A concise definition.
-_Avoid_: ambiguous synonym
+**术语**:
+简洁定义。
+_避免_: 容易混淆的同义词。
 
-## Relationships
+## 关系
 
-- A **Term** relates to another **Term**.
+- 一个 **术语** 与另一个 **术语** 的关系。
 
-## Example dialogue
+## 示例对话
 
-> **Domain expert:** "..."
+> **领域专家:** "..."
 > **Engineer:** "..."
 
-## Flagged ambiguities
+## 已标记歧义
 
-- Ambiguous phrase:
+- 歧义表达：

@@ -9,18 +9,19 @@ fi
 
 fail=0
 
-require_heading() {
-  local heading="$1"
-  if ! grep -Eq "^##[[:space:]]+$heading" "$FILE"; then
-    echo "[FAIL] Missing section: $heading"
+require_heading_any() {
+  local label="$1"
+  local pattern="$2"
+  if ! grep -Eq "^##[[:space:]]+($pattern)$" "$FILE"; then
+    echo "[FAIL] Missing section: $label"
     fail=1
   fi
 }
 
-require_heading "Endpoint"
-require_heading "Request"
-require_heading "Response"
-require_heading "Compatibility"
+require_heading_any "Endpoint/端点" "Endpoint|端点"
+require_heading_any "Request/请求" "Request|请求"
+require_heading_any "Response/响应" "Response|响应"
+require_heading_any "Compatibility/兼容性" "Compatibility|兼容性"
 
 if [[ "$fail" -eq 1 ]]; then
   echo "API contract check failed."

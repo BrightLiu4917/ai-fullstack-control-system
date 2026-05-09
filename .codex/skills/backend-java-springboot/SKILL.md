@@ -3,7 +3,7 @@ name: backend-java-springboot
 description: 生产级 Java Spring Boot 后端实现 skill，基于 Java 17、Spring Boot、MyBatis-Plus、MyBatis XML、DTO/VO、事务和既有约定实现后端接口、Service、Mapper/XML、业务校验和状态流。
 ---
 
-# Java Spring Boot Backend
+# Java Spring Boot 后端实现
 
 ## 适用场景
 - 实现或修改 Spring Boot 后端接口、Service、Mapper/XML、DTO/VO、业务校验或事务逻辑。
@@ -20,10 +20,10 @@ description: 生产级 Java Spring Boot 后端实现 skill，基于 Java 17、Sp
 - 相关 OpenSpec specs/changes
 
 ## Skill 路由
-- 标准 CRUD 脚手架生成必须改用 `codegen-java-springboot-crud`。
-- 涉及数据库表结构、字段、索引、迁移、回滚或高风险 SQL 时，必须先使用 `db-mysql-dba`。
-- 涉及 API 契约时，必须先使用 `api-contract-review`。
-- Bug 修复应先使用 `backend-diagnose` 建立反馈回路。
+- 标准 CRUD 脚手架生成必须改用 `codegen-java-springboot-crud` 先识别 adapter；generic adapter 不可用时，可在用户确认后由本 skill 做生产级手写实现。
+- 涉及数据库表结构、字段、索引、迁移、回滚或高风险 SQL 时，必须先使用 `dba-mysql`。
+- 涉及 API 契约时，必须先使用 `backend-common-api-contract-review`。
+- Bug 修复应先使用 `method-diagnose` 建立反馈回路。
 
 ## 编码前
 1. 定位既有包结构。
@@ -32,7 +32,8 @@ description: 生产级 Java Spring Boot 后端实现 skill，基于 Java 17、Sp
 4. 定位既有 Mapper/XML 风格。
 5. 定位既有 DTO/VO 命名方式。
 6. 定位认证、租户、权限、软删除和分页的既有实现。
-7. 如果字段、状态、权限、租户、删除、通知、时间冲突、支付或响应格式不清楚，必须先询问。
+7. 定位既有抽象：BaseController、BaseService、分页对象、查询条件对象、转换器、枚举和审计字段，如项目存在。
+8. 如果字段、状态、权限、租户、删除、通知、时间冲突、支付或响应格式不清楚，必须先询问。
 
 ## 实现流程
 1. 先阅读受影响模块的 Controller、Service、ServiceImpl、Mapper、XML、DTO、VO、Entity 和相关测试。
@@ -46,6 +47,17 @@ description: 生产级 Java Spring Boot 后端实现 skill，基于 Java 17、Sp
 9. 涉及多表写入、状态变更、扣减、日志、订单、通知时使用 `@Transactional`。
 10. 单个业务动作写入或修改超过一张表时，必须使用 `@Transactional`，并说明事务覆盖的写操作。
 11. 实现后运行可行的编译、单测或最小验证命令；无法运行时说明原因。
+
+## 手写 CRUD 质量门槛
+generic adapter 不可用且用户确认手写时，必须满足：
+- 先复用既有项目抽象，禁止重新发明统一响应、分页、异常、权限、租户或软删除模型。
+- Controller 只保留薄层入口；复杂编排进入 Service。
+- Service 方法按业务动作命名，避免只有机械 `save/update/delete` 且无语义边界的大方法。
+- DTO/VO 与 Entity 分离；除非项目既有约定允许，禁止直接返回 Entity。
+- 查询条件、分页、排序、租户、软删除和权限条件必须集中、清晰、可测试。
+- Mapper/XML 使用显式字段，禁止 `SELECT *`。
+- 新增抽象必须说明职责、调用方和为什么现有抽象不够。
+- 至少补充关键路径测试或说明可运行的最小验证命令。
 
 ## 数据库影响报告
 只要涉及表结构、字段、索引或 SQL 写入变化，必须明确列出：
@@ -70,7 +82,8 @@ description: 生产级 Java Spring Boot 后端实现 skill，基于 Java 17、Sp
 - 需要新增依赖、修改表结构、改变 API 兼容性或调整既有架构。
 - 需求需要业务决策，例如扣减规则、冲突规则、通知规则、支付规则。
 - 找不到既有统一响应、异常、分页、租户或权限约定。
-- 用户要求生成完整 CRUD 脚手架。
+- 用户要求生成完整 CRUD 脚手架，但 adapter 未确认。
+- 用户要求手写 CRUD，但尚未确认允许手写或缺少关键业务/契约/数据规则。
 - 表结构或字段变化会影响历史数据，但没有明确迁移策略。
 - 需要执行 CREATE、UPDATE、DELETE、ALTER、DROP、TRUNCATE 或高风险 SQL，但用户尚未确认。
 
@@ -81,7 +94,8 @@ description: 生产级 Java Spring Boot 后端实现 skill，基于 Java 17、Sp
 - 禁止使用 `SELECT *`。
 - 禁止无关重构。
 - 禁止伪实现。
-- 禁止手工生成标准 CRUD 脚手架。
+- 禁止手工拼低质量模板式 CRUD；禁止把 gupo adapter 用于非 gupo 项目。
+- 禁止为了凑层数创建无业务含义的空方法或伪抽象。
 - 禁止新增依赖，除非用户明确批准。
 - 禁止直接返回 Entity，除非项目既有约定允许。
 - 禁止吞异常或向前端暴露堆栈。

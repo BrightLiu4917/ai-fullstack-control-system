@@ -1,74 +1,71 @@
 ---
 name: codegen-java-springboot-crud
-description: 使用仓库内置 Java Spring Boot + MyBatis CRUD 生成器生成标准 CRUD 脚手架。Spring Boot 2.x 使用 tools/codegen/java-springboot-crud/scripts/crud-spring-bootv2，Spring Boot 3.x/4.x 使用 crud-spring-bootv34。用于 CRUD、Controller、Service、Mapper/XML、DTO/VO 批量生成，必须 preview first，禁止手工生成。
+description: Java Spring Boot CRUD 脚手架 adapter 路由入口。用于先识别目标项目适配器；没有可用 adapter 时不得生成脚手架，可在用户确认后转入 backend-java-springboot 做生产级手写实现。
 ---
 
-# Java Spring Boot CRUD Codegen
+# Java Spring Boot CRUD Adapter 路由
 
 ## 适用场景
-- 生成标准 CRUD、管理端基础接口、Mapper/XML、DTO/VO、Service、Controller 脚手架。
-- 用户明确要求脚手架、生成器、codegen、crud-codegen。
-- 需要批量生成重复结构，且手工实现容易偏离项目约定。
+- 用户要求 Java Spring Boot CRUD 脚手架、生成器、codegen 或批量生成 Controller/Service/Mapper/XML/DTO/VO。
+- 需要先判断目标项目是否已有已确认 codegen adapter。
+- 用户没有明确指定 gupo 或其他 adapter。
+- generic adapter 不可用，需要判断是否转入生产级手写实现。
 
 ## 必须读取
 - `AGENTS.md`
-- `docs/SPRING_BOOT_RULES.md`
-- `docs/API_RULES.md`
-- `docs/DB_SCHEMA_RULES.md`
-- `tools/codegen/java-springboot-crud/README.md`
+- `docs/SKILL_ROUTING.md`
+- `docs/SKILL_NAMING_RULES.md`
+- `tools/codegen/java-springboot-crud-adapters/README.md`
+- 目标项目 `.codex/codegen.toml`，如存在。
 
-## 脚本路径
-优先使用目标项目内置脚本：
+## 判定顺序
+1. 用户显式指定 adapter，例如 `gupo`。
+2. 目标项目 `.codex/codegen.toml` 声明 adapter。
+3. 安装 profile 或 adapter registry 声明目标项目使用某 adapter。
+4. 项目指纹高置信命中某 adapter。
+5. 仍无法确认时停止询问。
 
-```bash
-bash tools/codegen/java-springboot-crud/scripts/crud-spring-bootv2
-bash tools/codegen/java-springboot-crud/scripts/crud-spring-bootv34
-```
+## 当前可用 adapter
+- `gupo` -> `codegen-java-springboot-gupo-crud`
 
-如果本控制系统尚未复制到目标项目，但当前仓库存在该脚本，可使用本仓库绝对路径作为后备，并在输出中明确说明。
+## gupo 高置信指纹
+只有同时命中多项强特征时，才可建议 gupo adapter：
+- `pom.xml` 的 groupId、artifactId 或包名包含 gupo/groupds 约定。
+- 存在 gupo 项目的响应封装、分页封装、异常体系或基础 Controller/Service。
+- 既有目录符合 gupo 约定，例如 `entity/req`、`entity/vo`、`entity/model`。
+- 既有 Mapper/XML、DTO/VO、接口路径使用 gupo 固定封装和命名。
 
-禁止默认依赖 `~/.codex/skills/...` 路径，除非目标项目内没有内置脚本且用户确认使用本机全局脚本。
-
-## 版本选择
-- Spring Boot 2.x 使用 `crud-spring-bootv2`。
-- Spring Boot 3.x 或 4.x 使用 `crud-spring-bootv34`。
-- 必须从 `pom.xml` 判断版本。
-- 无法判断版本时，必须询问用户，禁止猜测。
+Spring Boot、MyBatis 或 MyBatis-Plus 本身不是选择 gupo adapter 的充分条件。
 
 ## 执行流程
-1. 定位项目根目录和目标模块路径。
-2. 从 `pom.xml` 判断 Spring Boot 版本，并记录判断依据。
-3. 选择对应脚本。
-4. 调用脚本查看用法，或按用户参数组装命令。
-5. 必须优先使用 `--preview`。
-6. 核对必要参数：`--project-root`、`--entity-name`、`--module-path`、`--route-path`、`--display-name`、`--ddl`。
-7. 可选参数按项目需要提供：`--base-package`、`--java-base-dir`、`--resources-base-dir`、`--table-name`、各类 `*-path`。
-8. 如果预览显示目标文件已存在，必须等待脚本给出的 `--force-token`，并让用户确认后再执行覆盖。
-9. 不手工修补生成结果；如果不符合需求，应调整参数后重新预览或重新生成。
-10. 如果多次生成仍失败，停止并报告具体错误，请求调整输入参数。
+1. 定位目标项目根目录。
+2. 读取 `.codex/codegen.toml`，如存在。
+3. 读取 `pom.xml` 和少量既有代码目录，只用于 adapter 指纹识别。
+4. 如果确认是 gupo，改用 `codegen-java-springboot-gupo-crud`。
+5. 如果用户要求通用 Java Spring Boot CRUD，说明当前 generic adapter 尚未实现。
+6. 询问用户是否允许转入 `backend-java-springboot` 进行生产级手写实现。
+7. 如用户确认手写，先确保 OpenSpec、API contract、DBA、测试和审查路径齐全。
+8. 如果 adapter、字段、契约、权限、租户或业务规则不清，停止询问。
 
 ## 停止并询问
-- 脚本不存在或无法执行。
-- 无法确认 Spring Boot 版本。
-- 必要参数缺失。
-- 表字段、主键、租户字段、软删除字段、状态字段或接口路径不明确。
-- 需要覆盖已有文件但用户未确认。
-- 用户要求手工实现标准 CRUD 文件。
+- 目标项目没有明确 adapter。
+- 项目指纹不足以识别 gupo。
+- 用户要求非 gupo 项目生成脚手架。
+- 用户要求使用“通用”脚手架，但 generic adapter 尚未实现且未确认手写实现。
+- 用户要求手写实现，但字段、API、权限、租户、状态流转或数据库规则不清。
 
 ## 禁止
-- 禁止手工生成 Controller/Service/Mapper/XML 标准 CRUD。
-- 禁止分析或修改既有 Java 文件来替代脚本生成。
-- 禁止猜测表字段。
-- 禁止绕过生成器冲突检查。
-- 禁止为了让生成结果通过而修改无关业务代码。
+- 禁止把 gupo 脚手架当成通用 Spring Boot 脚手架。
+- 禁止仅凭 Spring Boot/MyBatis/MyBatis-Plus 判断为 gupo。
+- 禁止在没有 adapter 的项目中试生成。
+- 禁止用低质量模板拼接 Controller/Service/Mapper/XML。
+- 禁止伪实现、空方法、TODO 实现或发明项目抽象。
+- 禁止在未确认规则时转入手写实现。
 
 ## 输出要求
-- 使用脚本完整路径。
-- Spring Boot 版本和判断依据。
-- 关键参数。
-- preview 结果。
-- force-token 和用户确认状态，如有。
-- 计划生成、修改、覆盖的文件。
-- 实际变更文件。
-- 验证步骤。
-- 假设和风险。
+- adapter 判定依据。
+- 命中的项目指纹或显式配置。
+- 若选择 gupo，说明将转入 `codegen-java-springboot-gupo-crud`。
+- 若 generic adapter 不可用，说明是否转入 `backend-java-springboot` 手写实现。
+- 若无法选择 adapter 且无法手写，列出需要用户确认的问题。
+- 不产生代码时明确说明未修改文件。

@@ -1,4 +1,4 @@
-# Capability Spec
+# 能力规格
 
 ## Scope
 说明能力边界。

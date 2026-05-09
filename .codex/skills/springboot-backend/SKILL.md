@@ -3,14 +3,18 @@ name: springboot-backend
 description: 兼容入口。Java Spring Boot 后端接口、Service、Mapper/XML、DTO/VO、事务和业务实现任务必须改用 backend-java-springboot。
 ---
 
-# Spring Boot Backend Compatibility
+# Spring Boot 后端兼容入口
 
 本 skill 仅保留为兼容入口。
+
+## 必须读取
+- `AGENTS.md`
+- `docs/SKILL_ROUTING.md`
 
 ## 必须改用
 - `backend-java-springboot`
 
 ## 强制规则
-- 标准 CRUD 改用 `codegen-java-springboot-crud`。
-- 涉及数据库先走 `db-mysql-dba`。
-- 涉及 API 契约先走 `api-contract-review`。
+- 标准 CRUD 先用 `codegen-java-springboot-crud` 识别 adapter；generic adapter 不可用时，可确认后转入 `backend-java-springboot` 手写实现。
+- 涉及数据库先走 `dba-mysql`。
+- 涉及 API 契约先走 `backend-common-api-contract-review`。

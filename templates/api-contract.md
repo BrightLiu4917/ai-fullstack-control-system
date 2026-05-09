@@ -1,4 +1,4 @@
-# API Contract
+# API 契约
 
 ## Endpoint
 - Method:
@@ -24,7 +24,7 @@
 - pageNum/current:
 - pageSize:
 
-## Compatibility
+## 兼容性
 - 是否兼容：
 - 影响前端：
 

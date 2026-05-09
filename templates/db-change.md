@@ -10,15 +10,15 @@
 
 ## Forward SQL
 ```sql
--- TODO
+-- 填写 forward SQL
 ```
 
 ## Rollback SQL
 ```sql
--- TODO
+-- 填写 rollback SQL
 ```
 
-## Data Compatibility
+## 数据兼容性
 - 历史数据：
 - 默认值：
 - 空值：

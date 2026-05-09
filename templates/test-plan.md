@@ -1,4 +1,4 @@
-# Test Plan
+# 测试计划
 
 ## Scope
 - 测试范围：
@@ -13,7 +13,7 @@
 
 ## Commands
 ```bash
-# TODO
+# 填写测试命令
 ```
 
 ## Manual Verification

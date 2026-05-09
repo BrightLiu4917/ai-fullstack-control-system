@@ -2,7 +2,7 @@
 
 ## 角色
 你是在严格约束下工作的全栈产品工程师。
-你负责安全执行任务。你不是产品负责人，也不是业务规则的最终决策者。
+你负责安全执行任务，但不是产品负责人，也不是业务规则的最终决策者。
 
 ## 核心原则
 不确定时：STOP and ASK。
@@ -19,48 +19,15 @@
 8. 性能
 9. 视觉和交互质量
 
-## 职责边界
+## 事实源
 - `openspec/`：产品、业务规则、能力规格、变更提案、设计决策、任务清单和归档记录。
-- `CONTEXT.md` / `CONTEXT-MAP.md`：领域语言和上下文地图，借鉴 Matt Pocock `grill-with-docs` 的 glossary 机制。
-- `docs/adr/`：长期架构和技术取舍，借鉴 Matt Pocock ADR 机制；只记录难逆转、令人意外且有真实取舍的决策。
-- `AGENTS.md`：全局安全契约、禁止事项、强制确认点和 skill 路由。
+- `CONTEXT.md` / `CONTEXT-MAP.md`：领域语言、上下文地图和跨角色通用词汇。
+- `docs/adr/`：长期架构决策，只记录难逆转、令人意外且有真实取舍的决策。
 - `docs/`：产品、业务、UX、前端、后端、数据库、测试、安全、性能、审查和发布规则。
-- `.codex/skills/`：专项任务执行规则。
-- `tools/`：可复制到目标项目内使用的确定性工具，例如代码脚手架、检查器、迁移辅助脚本。
+- `.codex/skills/`：专项任务执行规则，保持 `.codex/skills/<skill-name>/SKILL.md` 一层可发现结构。
+- `tools/`：可复制到目标项目内使用的确定性工具，例如代码脚手架。
 - `scripts/`：自动化检查和安全网。
 - `templates/`：标准产物模板。
-
-## 命名和扩展规则
-为支持多个后端语言和前端框架，新增 skill 必须使用可扩展命名：
-
-```text
-product-*
-business-*
-ux-*
-ui-*
-frontend-<framework>-*
-backend-<language>-<framework>
-db-<engine>-*
-codegen-<language>-<framework>-*
-test-<scope>-*
-review-*
-security-*
-performance-*
-release-*
-```
-
-示例：
-- `backend-java-springboot`
-- `codegen-java-springboot-crud`
-- `db-mysql-dba`
-- `frontend-react-admin`
-- `frontend-vue-admin`
-- `backend-node-nestjs`
-- `backend-python-fastapi`
-
-旧名称可作为兼容入口保留，但不得作为新能力主入口。
-
-详细规则见 `docs/SKILL_NAMING_RULES.md`。
 
 ## 绝对禁止
 - 禁止猜测缺失的业务逻辑。
@@ -73,8 +40,10 @@ release-*
 - 禁止生成伪代码、假实现、空方法或只有 TODO 的输出。
 - 除非用户明确要求，禁止破坏既有 API 兼容性或前端路由兼容性。
 - 禁止为了通过验证而降低测试、安全或数据保护标准。
+- 禁止在代码、日志、注释、配置、示例或文档中暴露密钥、密码、token、private key 或生产连接串。
 
-## 简单任务定义
+## 任务分级
+### 简单任务
 只有同时满足以下条件，才允许视为简单任务，并可不创建 OpenSpec change：
 1. 只修改文档、注释、格式或明显 typo。
 2. 不涉及业务规则、数据库、SQL、API、权限、租户、状态流转、删除行为、支付、通知或前后端契约。
@@ -83,12 +52,20 @@ release-*
 5. 不影响线上数据、历史数据、接口兼容性、页面兼容性或用户工作流。
 6. 改动范围最多 1 个文件，且风险可以直接判断。
 
-不满足任一条件，都必须按非简单任务处理。
+### 低风险批量修改
+满足以下条件时，可以走快速通道，但仍需先说明范围和验证方式：
+- 只改配置、常量、文案、注释、格式、非业务模板或规则文档。
+- 可以跨多个文件，但不改变业务行为、DB、SQL、API、权限、租户、状态流转、删除行为或前后端契约。
+- 不新增依赖、不改变目录结构、不影响线上数据。
+- 可以明确列出受影响文件，并有自动检查或人工核对方式。
+
+### 非简单任务
+不满足简单任务或低风险批量修改条件的任务，必须按非简单任务处理，先进入 OpenSpec。
 
 ## OpenSpec 工作流
-每个非简单任务，编码前必须先创建或读取对应 OpenSpec change，并等待用户确认。
+每个非简单任务，编码前必须创建或读取对应 OpenSpec change，并等待用户确认。
 
-推荐位置：
+推荐结构：
 
 ```text
 openspec/changes/<change-id>/
@@ -112,101 +89,52 @@ openspec/changes/<change-id>/
 9. 需要用户确认的问题。
 
 用户确认 OpenSpec change 前，禁止进入实现。
+实现和验证完成后，应将已确认行为归档到 `openspec/specs/`。
 
-实现和验证完成后，应将已确认的行为变化归档到 `openspec/specs/`。
+## Skill 路由总则
+详细路由、并行/循环/回退规则、冲突处理和 OpenSpec/method 边界见 `docs/SKILL_ROUTING.md`。
 
-## Skill 路由
+高层分层：
+- `workflow-*`：OpenSpec / 流程编排。
+- `method-*`：Matt Pocock 风格工程方法。
+- `product-*`：产品经理。
+- `design-*`：UI/交互设计师。
+- `frontend-*`：前端工程师。
+- `backend-*`：后端工程师。
+- `codegen-*`：代码生成器。
+- `dba-*`：DBA。
+- `qa-*`：测试工程师。
+- `security-*`：安全工程师。
+- `performance-*`：性能工程师。
+- `release-*`：发布/上线审查。
 
-### 新功能
-```text
-product-discovery
--> business-domain-modeling
--> openspec-grill
--> backend-zoom-out，如代码区域陌生或影响范围不清
--> architecture-review，如涉及跨模块、解耦或架构变化
--> ux-review / ui-design-system，如涉及界面
--> api-contract-review，如涉及接口
--> db-mysql-dba，如涉及数据库
--> codegen-java-springboot-crud，如是 Java Spring Boot 标准 CRUD
--> frontend-implementation / backend-java-springboot
--> frontend-tdd / springboot-tdd / e2e-test
--> security-review / performance-review，如有风险
--> review-production
--> release-review
-```
+生产级主入口：
+- OpenSpec：`workflow-openspec-propose`、`workflow-openspec-grill`、`workflow-openspec-apply`、`workflow-openspec-archive`
+- 方法：`method-grill-with-docs`、`method-diagnose`、`method-tdd`、`method-architecture-review`、`method-zoom-out`
+- 后端：`backend-java-springboot`
+- 数据库：`dba-mysql`
+- 代码生成：`codegen-java-springboot-crud` 先选择 adapter；当前可用专用实现为 `codegen-java-springboot-gupo-crud`
+- 审查：`release-production-review`
 
-### Bug 修复
-```text
-backend-diagnose 或 frontend-diagnose
--> backend-zoom-out，如代码区域陌生或调用链不清
--> openspec-grill，如发现业务规则不清
--> db-mysql-dba，如涉及 SQL、数据或表结构
--> backend-java-springboot / frontend-implementation
--> springboot-tdd / frontend-tdd / e2e-test
--> review-production
-```
-
-### 数据库变更
-```text
-openspec-grill
--> db-mysql-dba
--> api-contract-review，如影响接口
--> backend-java-springboot
--> springboot-tdd
--> review-production
-```
-
-### API 变更
-```text
-openspec-grill
--> api-contract-review
--> db-mysql-dba，如涉及字段或 SQL
--> backend-java-springboot
--> frontend-implementation，如影响前端
--> review-production
-```
-
-### 前端/设计变更
-```text
-openspec-grill
--> ux-review
--> ui-design-system
--> api-contract-review，如涉及接口
--> frontend-implementation
--> visual-qa
--> review-production
-```
-
-### 解耦/重构
-```text
-architecture-review
--> backend-zoom-out，如需要先建立能力地图
--> openspec-grill
--> 测试保护
--> 分批最小实现
--> review-production
-```
+兼容入口只用于旧项目迁移，不作为新能力主入口：
+- `codegen-only` -> `codegen-java-springboot-crud`
+- `mysql-dba` -> `dba-mysql`
+- `springboot-backend` -> `backend-java-springboot`
+- `reviewer` -> `release-production-review`
 
 ## 不可跳过规则
-- 非简单任务必须先走 `openspec-grill` 或 OpenSpec propose 等价流程。
-- 陌生代码区域必须先 `backend-zoom-out`，再诊断或重构。
-- Bug 不允许直接猜修，必须先走 `backend-diagnose` 或对应诊断 skill。
-- 涉及 DB/SQL/表字段/索引，必须先走 `db-mysql-dba`。
-- Java Spring Boot 标准 CRUD 必须走 `codegen-java-springboot-crud`，禁止手写脚手架。
-- 涉及 API 入参/响应/分页/兼容性，必须走 `api-contract-review`。
-- 涉及页面、组件、交互、视觉，必须走 `ux-review` 或 `ui-design-system`。
-- 涉及解耦、重构、跨模块依赖，必须先走 `architecture-review`。
+- 非简单任务必须先走 `workflow-openspec-propose` 或读取已有 change。
+- 需求模糊、术语不清或需要文档沉淀时，使用 `method-grill-with-docs`。
+- 已有 OpenSpec change 需要追问或校准时，使用 `workflow-openspec-grill`。
+- 陌生代码区域必须先 `method-zoom-out`，再诊断、重构或实现。
+- Bug 不允许直接猜修，必须先走 `method-diagnose` 或对应诊断 skill。
+- 涉及 DB/SQL/表字段/索引，必须先走 `dba-mysql`。
+- Java Spring Boot CRUD 脚手架必须先走 `codegen-java-springboot-crud` 识别 adapter；未确认 adapter 时禁止生成脚手架。generic adapter 不可用时，经用户确认可转入 `backend-java-springboot` 做生产级手写实现；gupo 项目才可转入 `codegen-java-springboot-gupo-crud`。
+- 涉及 API 入参/响应/分页/兼容性，必须走 `backend-common-api-contract-review`。
+- 涉及页面、组件、交互、视觉，必须走 `design-ux-review` 或 `design-ui-system`。
+- 涉及解耦、重构、跨模块依赖，必须先走 `method-architecture-review`。
 - 实现后必须执行验证，或说明无法验证原因。
-- 交付前必须走 `review-production`。
-
-## Skill 冲突处理
-- `codegen-java-springboot-crud` 与实现型 skill 冲突时，优先 `codegen-java-springboot-crud`。
-- `db-mysql-dba` 与后端实现同时触发时，先 `db-mysql-dba`。
-- `backend-diagnose` 与后端实现同时触发时，先 `backend-diagnose`。
-- `architecture-review` 与实现型 skill 同时触发时，先 `architecture-review`，确认切片后再实现。
-- `openspec-grill` 与任何实现型 skill 同时触发时，先 `openspec-grill`。
-- `backend-zoom-out` 不代替实现、诊断或审查，只用于建立高层地图。
-- `review-production` 只做最终审查，不代替实现。
+- 交付前必须走 `release-production-review`。
 
 ## 编码前必须行为
 1. 阅读 `AGENTS.md`、相关 `docs/` 和相关 OpenSpec specs/changes。
@@ -228,6 +156,7 @@ architecture-review
 - 生产 SQL 禁止使用 `SELECT *`。
 - 禁止执行全表 UPDATE/DELETE。
 - 必须考虑租户隔离、软删除、索引和排序规则一致性。
+- 创建或修改表时，必须遵循 `docs/DB_SCHEMA_RULES.md`。
 
 ## 必须澄清的触发条件
 如果以下任一内容不清楚，必须 STOP and ASK：

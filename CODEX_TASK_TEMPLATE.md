@@ -1,6 +1,6 @@
 # Codex 全栈任务入口模板
 
-> 非简单任务必须先进入 OpenSpec change。不要直接编码。
+> 先按任务分级判断。非简单任务必须先进入 OpenSpec change，不要直接编码。
 
 ## 项目
 填写项目名
@@ -30,6 +30,15 @@
 - 测试：
 - 发布：
 
+## 任务分级
+选择一个：
+
+- 简单任务：只改单个文档、注释、格式或明显 typo，不涉及业务、DB、SQL、API、权限、租户、状态流、删除、运行时代码或前后端契约。
+- 低风险批量修改：只改配置、常量、文案、注释、格式、非业务模板或规则文档；可跨多个文件，但不改变业务行为、DB、API、权限、目录结构或线上数据。
+- 非简单任务：不满足以上条件，必须进入 OpenSpec。
+
+低风险批量修改编码前仍需输出范围、受影响文件和验证方式。
+
 ## OpenSpec 要求
 请先创建或读取：
 
@@ -54,11 +63,14 @@ openspec/changes/<change-id>/
 8. 需要我确认的问题
 
 ## Matt-style 工程方法
-- 需求不清：用 `openspec-grill` 做追问、术语校准和场景压力测试。
-- 代码区域陌生：用 `backend-zoom-out` 先建立能力地图。
-- Bug 或性能问题：用 `backend-diagnose` 建立反馈回路后再修。
-- 需要测试保护：用 `springboot-tdd` 或对应前端测试 skill 做红绿重构。
-- 解耦重构：用 `architecture-review` 找 deep module、seam 和分批切片。
+- 需求不清：用 `method-grill-with-docs` 做追问、术语校准和场景压力测试。
+- 需要进入规格流程：用 `workflow-openspec-propose` 创建或完善 OpenSpec change。
+- 需要把追问结果落到 OpenSpec：用 `workflow-openspec-grill`。
+- 代码区域陌生：用 `method-zoom-out` 先建立能力地图。
+- Bug 或性能问题：用 `method-diagnose` 建立反馈回路后再修。
+- 需要测试保护：用 `method-tdd` 或对应前端测试 skill 做红绿重构。
+- 解耦重构：用 `method-architecture-review` 找 deep module、seam 和分批切片。
+- 详细 skill 路由、并行、循环、回退和冲突处理：按 `docs/SKILL_ROUTING.md`。
 
 ## 强制停止条件
 如果以下内容不清楚，必须 STOP and ASK：
@@ -79,3 +91,9 @@ openspec/changes/<change-id>/
 2. 涉及表结构或字段变化时，明确列出表名、字段名、变化类型、旧定义、新定义、影响范围、是否需要迁移。
 3. 等我确认后再实施最小安全变更。
 4. 报告 OpenSpec 变化、变更文件、关键逻辑、SQL 变更、表结构/字段变化、API 变化、前端变化、验证步骤和风险。
+
+## 推荐验证
+- `bash scripts/skill-check.sh`
+- `bash scripts/route-check.sh`
+- `bash scripts/docs-link-check.sh`
+- `bash scripts/openspec-check.sh openspec/changes/<change-id>`
